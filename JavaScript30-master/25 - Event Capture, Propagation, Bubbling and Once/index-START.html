@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Understanding JavaScript's Capture</title>
+
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+        
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+        }
+        
+        div {
+            width: 100%;
+            padding: 100px;
+        }
+        
+        .one {
+            background: thistle;
+        }
+        
+        .two {
+            background: mistyrose;
+        }
+        
+        .three {
+            background: coral;
+        }
+    </style>
+
+</head>
+
+<body class="bod">
+    <button>Button</button>
+    <div class="one">
+        <div class="two">
+            <div class="three"></div>
+        </div>
+    </div>
+    <ul>
+        <li>
+            <a href="javascript:;">Button1</a>
+        </li>
+        <li>
+            <a href="javascript:;">Button2</a>
+        </li>
+        <li>
+            <a href="javascript:;">Button3</a>
+        </li>
+    </ul>
+    <button></button>
+    <script>
+        ;
+        (function() {
+            let button = document.querySelector("button");
+            button.addEventListener("click", buttonHandler, {
+                capture: true,
+                once: false
+            })
+
+            function buttonHandler() {
+                console.log("Button Click");
+            }
+            let divs = document.querySelectorAll("div");
+            divs.forEach(dom => {
+                dom.addEventListener("click", divHandler, {
+                    capture: true
+                });
+            })
+
+            function divHandler() {
+                e.stopPropagation();
+                console.log(e.path);
+                console.log(this.className);
+            }
+
+            let as = document.querySelectorAll("div");
+            as.forEach(dom => {
+                dom.addEventListener("click", aHandler, {
+                    capture: false,
+                    passive: false
+                });
+            })
+
+            function aHandler() {
+                e.preventDefault();
+                console.log("Binding A Click", this);
+            }
+
+            let ul = document.querySelector("ul");
+            ul.addEventListener("click", ulHandler);
+
+            function ulHandler(e) {
+                //console.log("target:", e.target, "currentTarget:", e.currentTarget);
+                console.log(Array.from(e.target.classList).indexOf("button") !== -1, e.path);
+                e.stopPropagation();
+                //委派需要多做這個判斷
+                if (e.target.nodeName === "A") {
+
+                    e.preventDefault();
+                    console.log("Delegate A Click:", e.target);
+                }
+            }
+
+        })();
+    </script>
+</body>
+
+</html>
